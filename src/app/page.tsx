@@ -2,8 +2,12 @@ import { Navbar } from '@/components/layout/navbar'
 import { Hero } from '@/components/home/hero'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { getProducts } from '@/app/actions/products'
+import { ProductCard } from '@/components/product/product-card'
 
-export default function Home() {
+export default async function Home() {
+  const { products } = await getProducts({ limit: 4, sortBy: 'newest' })
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
@@ -24,11 +28,15 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-
-            {/* ProductCard placeholders will go here */}
-            {Array(4).fill(0).map((_, i) => (
-              <div key={i} className="group relative bg-muted animate-pulse rounded-2xl aspect-4/5 shadow-card" />
-            ))}
+            {products.length > 0 ? (
+              products.map((product) => (
+                <ProductCard key={product.id} product={product as any} />
+              ))
+            ) : (
+              <div className="col-span-full py-12 text-center text-muted-foreground">
+                No recent listings found.
+              </div>
+            )}
           </div>
         </section>
       </main>

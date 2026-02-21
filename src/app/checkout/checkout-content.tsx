@@ -22,13 +22,31 @@ import {
 export function CheckoutContent() {
   const { items, totalPrice, totalItems, clearCart } = useCart()
   const [step, setStep] = useState<'checkout' | 'success'>('checkout')
+  
+  // Meetup coordination state
+  const [pickupLocation, setPickupLocation] = useState('main-gate')
+  const [meetupDate, setMeetupDate] = useState('')
+  const [timeWindow, setTimeWindow] = useState('afternoon')
 
   const handlePlaceOrder = () => {
+    // In a real app, we'd send these details to the server
+    console.log('Order Details:', {
+      items,
+      totalPrice,
+      meetup: {
+        location: pickupLocation,
+        date: meetupDate,
+        time: timeWindow
+      }
+    })
     setStep('success')
     clearCart()
   }
 
+  const isMeetupReady = !!meetupDate
+
   if (items.length === 0 && step === 'checkout') {
+    // ... items.length === 0 block remains same
     return (
       <main className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
          <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center">
@@ -46,6 +64,7 @@ export function CheckoutContent() {
   }
 
   if (step === 'success') {
+    // ... success block remains same
     return (
       <main className="flex-1 container mx-auto px-4 py-24 flex flex-col items-center justify-center text-center">
         <div className="bg-primary/10 p-6 rounded-[2.5rem] mb-8 animate-in zoom-in duration-500">
@@ -91,7 +110,7 @@ export function CheckoutContent() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <Label htmlFor="location" className="text-xs font-black uppercase text-muted-foreground tracking-wider">Pickup Location</Label>
-                    <Select defaultValue="main-gate">
+                    <Select value={pickupLocation} onValueChange={setPickupLocation}>
                       <SelectTrigger className="h-12 rounded-2xl bg-muted/30 border-none ring-1 ring-border">
                         <SelectValue placeholder="Select a campus spot" />
                       </SelectTrigger>
@@ -116,6 +135,8 @@ export function CheckoutContent() {
                       <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input 
                         type="date" 
+                        value={meetupDate}
+                        onChange={(e) => setMeetupDate(e.target.value)}
                         className="pl-11 h-12 rounded-2xl bg-muted/30 border-none ring-1 ring-border"
                       />
                     </div>
@@ -125,7 +146,7 @@ export function CheckoutContent() {
                     <Label htmlFor="time" className="text-xs font-black uppercase text-muted-foreground tracking-wider">Preferred Time Window</Label>
                     <div className="relative">
                       <Clock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Select defaultValue="afternoon">
+                      <Select value={timeWindow} onValueChange={setTimeWindow}>
                         <SelectTrigger className="pl-11 h-12 rounded-2xl bg-muted/30 border-none ring-1 ring-border">
                           <SelectValue placeholder="Select a time" />
                         </SelectTrigger>
@@ -205,10 +226,11 @@ export function CheckoutContent() {
                   </div>
 
                   <Button 
-                    className="w-full h-16 rounded-full text-lg font-black shadow-button hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    className="w-full h-16 rounded-full text-lg font-black shadow-button hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
                     onClick={handlePlaceOrder}
+                    disabled={!isMeetupReady}
                   >
-                    Request Meetup & Buy
+                    {isMeetupReady ? 'Request Meetup & Buy' : 'Set Meetup Date to Buy'}
                   </Button>
 
                   <p className="text-[10px] text-center text-muted-foreground px-4 leading-normal font-medium">
@@ -229,3 +251,4 @@ export function CheckoutContent() {
     </main>
   )
 }
+
