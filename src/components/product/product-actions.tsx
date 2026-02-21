@@ -12,22 +12,16 @@ interface ProductActionsProps {
   productId: string
   sellerId: string
   isAuthenticated: boolean
-  title: string
-  price: number
-  image: string
 }
 
 export function ProductActions({ 
   productId, 
   sellerId, 
-  isAuthenticated,
-  title,
-  price,
-  image
+  isAuthenticated
 }: ProductActionsProps) {
   const [loading, setLoading] = useState<'message' | 'purchase' | 'cart' | null>(null)
   const router = useRouter()
-  const { addToCart } = useCart()
+  const { addToCart, isPending } = useCart()
 
   const handleMessage = async () => {
     if (!isAuthenticated) return router.push('/login')
@@ -39,20 +33,10 @@ export function ProductActions({
     }
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     setLoading('cart')
-    addToCart({
-      id: productId,
-      title,
-      price,
-      image,
-      seller_id: sellerId,
-      campus_name: 'Caleb University'
-    })
-    setTimeout(() => {
-      toast.success('Added to your campus cart!')
-      setLoading(null)
-    }, 500)
+    await addToCart({ id: productId })
+    setLoading(null)
   }
 
   const handleBuyNow = async () => {
@@ -66,7 +50,7 @@ export function ProductActions({
         className="w-full h-14 gap-3 text-base font-bold rounded-full shadow-button group" 
         size="lg"
         onClick={handleAddToCart}
-        disabled={!!loading}
+        disabled={!!loading || isPending}
       >
         {loading === 'cart' ? (
           <Loader2 className="h-5 w-5 animate-spin" />
@@ -81,7 +65,7 @@ export function ProductActions({
         variant="outline" 
         size="lg"
         onClick={handleBuyNow}
-        disabled={!!loading}
+        disabled={!!loading || isPending}
       >
         {loading === 'purchase' ? (
           <Loader2 className="h-5 w-5 animate-spin" />

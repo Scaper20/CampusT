@@ -108,9 +108,6 @@ export default async function ProductPage({
                         productId={product.id} 
                         sellerId={product.seller_id} 
                         isAuthenticated={!!user}
-                        title={product.title}
-                        price={product.price}
-                        image={product.images[0]}
                       />
                     )}
                   </div>

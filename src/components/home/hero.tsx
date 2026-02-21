@@ -75,15 +75,17 @@ export function Hero() {
                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
                className="relative w-full h-full flex items-center justify-center"
              >
-                <div className="relative w-72 h-72 md:w-96 md:h-96 bg-white rounded-[3rem] shadow-card rotate-6 flex items-center justify-center overflow-hidden border">
-                   <div className="absolute inset-0 bg-linear-to-tr from-primary/10 to-transparent" />
-                   <ShoppingBag className="h-32 w-32 text-primary opacity-20" />
-                   {/* This will be replaced by the generated image */}
+                <div className="relative w-72 h-72 md:w-96 md:h-96 bg-white rounded-[3rem] shadow-card rotate-6 flex items-center justify-center overflow-hidden border group/hero">
+                   <div className="absolute inset-0 bg-linear-to-tr from-primary/10 to-transparent z-10" />
+                   <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
+                      <ShoppingBag className="h-32 w-32 text-primary/10" />
+                   </div>
                    <Image 
-                     src="/artifacts/campus_marketplace_hero_products.png" 
-                     alt="Campus Items" 
+                     src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1000&auto=format&fit=crop" 
+                     alt="Campus Essentials" 
                      fill 
-                     className="object-cover p-8 -rotate-6 scale-110"
+                     className="object-cover transition-transform duration-700 group-hover/hero:scale-110"
+                     priority
                    />
                 </div>
                 

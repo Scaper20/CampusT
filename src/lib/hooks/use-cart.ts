@@ -1,6 +1,16 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useTransition } from 'react'
+import { 
+  getCartItems, 
+  addToCartAction, 
+  removeFromCartAction, 
+  updateCartQuantityAction, 
+  clearCartAction 
+} from '@/app/actions/cart'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
 
 export interface CartItem {
   id: string
@@ -13,64 +23,92 @@ export interface CartItem {
 }
 
 export function useCart() {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem('campus-cart')
-      if (savedCart) {
-        try {
-          return JSON.parse(savedCart)
-        } catch (e) {
-          console.error('Failed to parse cart', e)
-        }
-      }
-    }
-    return []
-  })
+  const [items, setItems] = useState<CartItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
+  const supabase = createClient()
 
-  // Mark as loaded on mount to handle hydration/SSR safely
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
-
-  // Sync with localStorage
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem('campus-cart', JSON.stringify(items))
-      // Trigger event for other components
-      window.dispatchEvent(new Event('cart-updated'))
-    }
-  }, [items, isLoaded])
-
-  const addToCart = useCallback((item: Omit<CartItem, 'quantity'>) => {
-    setItems(current => {
-      const existing = current.find(i => i.id === item.id)
-      if (existing) {
-        return current.map(i => 
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-        )
-      }
-      return [...current, { ...item, quantity: 1 }]
-    })
-  }, [])
-
-  const removeFromCart = useCallback((id: string) => {
-    setItems(current => current.filter(i => i.id !== id))
-  }, [])
-
-  const updateQuantity = useCallback((id: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(id)
+  const fetchCart = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      setItems([])
+      setIsLoaded(true)
       return
     }
-    setItems(current => 
-      current.map(i => i.id === id ? { ...i, quantity } : i)
-    )
-  }, [removeFromCart])
 
-  const clearCart = useCallback(() => {
-    setItems([])
-  }, [])
+    const cartData = await getCartItems()
+    setItems(cartData as CartItem[])
+    setIsLoaded(true)
+  }, [supabase.auth])
+
+  useEffect(() => {
+    fetchCart()
+
+    // Listen for auth changes to refetch cart
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      fetchCart()
+    })
+
+    return () => subscription.unsubscribe()
+  }, [fetchCart, supabase.auth])
+
+  const checkAuth = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      toast.error('Please login to add items to your cart')
+      router.push('/login')
+      return false
+    }
+    return true
+  }, [supabase.auth, router])
+
+  const addToCart = useCallback(async (item: Omit<CartItem, 'quantity' | 'campus_name' | 'seller_id' | 'image' | 'title' | 'price' | 'id'> & { id: string }) => {
+    if (!(await checkAuth())) return
+
+    startTransition(async () => {
+      const result = await addToCartAction(item.id)
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success('Added to cart')
+        await fetchCart() // Refetch to get latest state
+      }
+    })
+  }, [fetchCart, checkAuth])
+
+  const removeFromCart = useCallback(async (id: string) => {
+    startTransition(async () => {
+      const result = await removeFromCartAction(id)
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        await fetchCart()
+      }
+    })
+  }, [fetchCart])
+
+  const updateQuantity = useCallback(async (id: string, quantity: number) => {
+    startTransition(async () => {
+      const result = await updateCartQuantityAction(id, quantity)
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        await fetchCart()
+      }
+    })
+  }, [fetchCart])
+
+  const clearCart = useCallback(async () => {
+    startTransition(async () => {
+      const result = await clearCartAction()
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        await fetchCart()
+      }
+    })
+  }, [fetchCart])
 
   const totalPrice = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
@@ -83,6 +121,7 @@ export function useCart() {
     clearCart,
     totalPrice,
     totalItems,
-    isLoaded
+    isLoaded,
+    isPending
   }
 }

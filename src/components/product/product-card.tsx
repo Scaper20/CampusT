@@ -10,7 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 
 import { useState } from 'react'
-import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 import { useCart } from '@/lib/hooks/use-cart'
 
@@ -33,22 +32,11 @@ export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart()
   const mainImage = product.images?.[0] || '/placeholder-product.jpg'
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setIsAdded(true)
-    addToCart({
-      id: product.id,
-      title: product.title,
-      price: product.price,
-      image: mainImage,
-      seller_id: 'mock-seller-id', // Update later if available
-      campus_name: product.campus.name
-    })
-    toast.success('Added to cart!', {
-      description: `${product.title} has been added to your cart.`,
-      position: 'bottom-right',
-    })
+    await addToCart({ id: product.id })
     setTimeout(() => setIsAdded(false), 2000)
   }
 
