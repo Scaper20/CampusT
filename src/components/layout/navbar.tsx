@@ -2,12 +2,13 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Search, ShoppingBag, Menu, MessageSquare } from 'lucide-react'
+import { Search, ShoppingBag, MessageSquare } from 'lucide-react'
 import { UserNav } from './user-nav'
 import { AnnouncementBar } from './announcement-bar'
 import { NavbarContainer } from './navbar-container'
 import { CampusSelector } from './campus-selector'
 import { CartDrawer } from '../cart/cart-drawer'
+import { MobileNav } from './mobile-nav'
 
 export async function Navbar() {
   const supabase = await createClient()
@@ -28,7 +29,7 @@ export async function Navbar() {
       <AnnouncementBar />
       <NavbarContainer>
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2 group transition-transform hover:scale-105">
+          <Link href="/" className="flex items-center gap-2 group transition-transform hover:scale-105 shrink-0">
             <div className="bg-primary p-1.5 rounded-xl shadow-button">
               <ShoppingBag className="h-5 w-5 text-primary-foreground" />
             </div>
@@ -49,7 +50,7 @@ export async function Navbar() {
           </nav>
         </div>
 
-        <div className="flex flex-1 items-center justify-center px-8 relative max-w-2xl">
+        <div className="hidden md:flex flex-1 items-center justify-center px-8 relative max-w-2xl">
           <div className="relative w-full group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input
@@ -61,13 +62,13 @@ export async function Navbar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <div className="hidden xl:flex items-center pr-3 border-r mr-1">
              <CampusSelector />
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <Button variant="ghost" size="icon" className="rounded-full relative hover:bg-primary/5 hover:text-primary transition-colors" asChild>
+          <div className="flex items-center gap-0.5 sm:gap-1.5">
+            <Button variant="ghost" size="icon" className="rounded-full relative hover:bg-primary/5 hover:text-primary transition-colors h-10 w-10 sm:h-11 sm:w-11" asChild>
               <Link href="/messages">
                 <MessageSquare className="h-5 w-5" />
               </Link>
@@ -77,11 +78,11 @@ export async function Navbar() {
           </div>
 
           {userProfile ? (
-            <div className="ml-2 pl-4 border-l">
+            <div className="hidden sm:block ml-2 pl-4 border-l">
               <UserNav user={userProfile} />
             </div>
           ) : (
-            <div className="flex items-center gap-2 ml-4">
+            <div className="hidden sm:flex items-center gap-2 ml-4">
               <Button variant="ghost" size="sm" className="font-semibold rounded-full" asChild>
                 <Link href="/login">Login</Link>
               </Button>
@@ -91,12 +92,11 @@ export async function Navbar() {
             </div>
           )}
           
-          <Button variant="ghost" size="icon" className="lg:hidden ml-2">
-            <Menu className="h-5 w-5" />
-          </Button>
+          <MobileNav user={userProfile} />
         </div>
       </NavbarContainer>
     </>
   )
 }
+
 

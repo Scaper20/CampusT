@@ -2,9 +2,7 @@ import { getProducts } from '@/app/actions/products'
 import { getCampuses } from '@/app/actions/campuses'
 import { Navbar } from '@/components/layout/navbar'
 import { ProductCard } from '@/components/product/product-card'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { 
   Select, 
   SelectContent, 
@@ -13,6 +11,7 @@ import {
   SelectValue 
 } from '@/components/ui/select'
 import { Search, Filter, SlidersHorizontal } from 'lucide-react'
+
 
 const CATEGORIES = [
   "All",
@@ -33,7 +32,8 @@ export default async function BrowsePage({
   const query = typeof params.q === 'string' ? params.q : undefined
   const category = typeof params.category === 'string' ? params.category : undefined
   const campusId = typeof params.campus === 'string' ? params.campus : undefined
-  const sortBy = typeof params.sort === 'string' ? (params.sort as any) : 'newest'
+  const sortBy = typeof params.sort === 'string' ? (params.sort as 'newest' | 'price-low' | 'price-high' | 'featured') : 'newest'
+
   
   const { products, count } = await getProducts({ query, category, campusId, sortBy })
   const campuses = await getCampuses()
@@ -45,12 +45,12 @@ export default async function BrowsePage({
       <main className="container mx-auto px-4 py-8">
         <div className="flex flex-col gap-8">
           {/* Filters & Search Header */}
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-            <h1 className="text-3xl font-bold tracking-tight">Browse Products</h1>
+          <div className="flex flex-col lg:flex-row gap-4 lg:items-center justify-between">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Browse Products</h1>
             
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 lg:gap-3">
               <Select defaultValue={sortBy}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SlidersHorizontal className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -63,7 +63,7 @@ export default async function BrowsePage({
               </Select>
 
               <Select defaultValue={campusId || 'all'}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-full sm:w-[200px]">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="All Campuses" />
                 </SelectTrigger>
@@ -76,6 +76,7 @@ export default async function BrowsePage({
               </Select>
             </div>
           </div>
+
 
           {/* Category Quick Pills */}
           <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
