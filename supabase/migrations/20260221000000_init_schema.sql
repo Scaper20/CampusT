@@ -1,23 +1,22 @@
 -- Enable necessary extensions
 create extension if not exists "uuid-ossp";
 
--- 1. CAMPUSES TABLE
-create table if not exists public.campuses (
-    id uuid default uuid_generate_v4() primary key,
+-- 1. UNIVERSITIES TABLE
+create table if not exists public.universities (
+    id uuid default gen_random_uuid() primary key,
     name text not null,
-    university text not null,
+    domain text,
     is_active boolean default true,
     created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Seed initial campus
-insert into public.campuses (name, university) values ('Caleb Main Campus', 'Caleb University');
+-- Initial university seed removed as per request
 
 -- 2. PROFILES TABLE
 create table if not exists public.profiles (
     id uuid references auth.users on delete cascade primary key,
     system_role text check (system_role in ('user', 'admin')) default 'user',
-    campus_id uuid references public.campuses(id) on delete set null,
+    university_id uuid references public.universities(id) on delete set null,
     full_name text,
     avatar_url text,
     created_at timestamp with time zone default timezone('utc'::text, now()) not null
@@ -25,9 +24,9 @@ create table if not exists public.profiles (
 
 -- 3. PRODUCTS TABLE
 create table if not exists public.products (
-    id uuid default uuid_generate_v4() primary key,
+    id uuid default gen_random_uuid() primary key,
     seller_id uuid references public.profiles(id) on delete cascade not null,
-    campus_id uuid references public.campuses(id) on delete restrict not null,
+    university_id uuid references public.universities(id) on delete restrict not null,
     title text not null,
     description text,
     price decimal(12,2) not null,
@@ -44,13 +43,13 @@ create table if not exists public.products (
 
 -- Index for search vector
 create index if not exists products_search_idx on public.products using gin(search_vector);
-create index if not exists products_campus_idx on public.products(campus_id);
+create index if not exists products_university_idx on public.products(university_id);
 create index if not exists products_seller_idx on public.products(seller_id);
 create index if not exists products_status_idx on public.products(status);
 
 -- 4. CONVERSATIONS TABLE
 create table if not exists public.conversations (
-    id uuid default uuid_generate_v4() primary key,
+    id uuid default gen_random_uuid() primary key,
     buyer_id uuid references public.profiles(id) on delete cascade not null,
     seller_id uuid references public.profiles(id) on delete cascade not null,
     product_id uuid references public.products(id) on delete cascade not null,
@@ -61,7 +60,7 @@ create table if not exists public.conversations (
 
 -- 5. MESSAGES TABLE
 create table if not exists public.messages (
-    id uuid default uuid_generate_v4() primary key,
+    id uuid default gen_random_uuid() primary key,
     conversation_id uuid references public.conversations(id) on delete cascade not null,
     sender_id uuid references public.profiles(id) on delete cascade not null,
     content text not null,
@@ -73,7 +72,7 @@ create index if not exists messages_conversation_idx on public.messages(conversa
 
 -- 6. PURCHASE REQUESTS TABLE
 create table if not exists public.purchase_requests (
-    id uuid default uuid_generate_v4() primary key,
+    id uuid default gen_random_uuid() primary key,
     product_id uuid references public.products(id) on delete cascade not null,
     buyer_id uuid references public.profiles(id) on delete cascade not null,
     seller_id uuid references public.profiles(id) on delete cascade not null,
@@ -90,9 +89,9 @@ alter table public.profiles enable row level security;
 create policy "Public profiles are viewable by everyone." on public.profiles for select using (true);
 create policy "Users can update their own profiles." on public.profiles for update using (auth.uid() = id);
 
--- Campuses
-alter table public.campuses enable row level security;
-create policy "Campuses are viewable by everyone." on public.campuses for select using (true);
+-- Universities
+alter table public.universities enable row level security;
+create policy "Universities are viewable by everyone." on public.universities for select using (true);
 
 -- Products
 alter table public.products enable row level security;

@@ -1,5 +1,5 @@
 import { getProducts } from '@/app/actions/products'
-import { getCampuses } from '@/app/actions/campuses'
+import { getUniversities } from '@/app/actions/universities'
 import { Navbar } from '@/components/layout/navbar'
 import { ProductCard } from '@/components/product/product-card'
 import { Button } from '@/components/ui/button'
@@ -36,7 +36,7 @@ export default async function BrowsePage({
 
   
   const { products, count } = await getProducts({ query, category, campusId, sortBy })
-  const campuses = await getCampuses()
+  const universities = await getUniversities()
 
   return (
     <div className="min-h-screen bg-background">
@@ -65,12 +65,12 @@ export default async function BrowsePage({
               <Select defaultValue={campusId || 'all'}>
                 <SelectTrigger className="w-full sm:w-[200px]">
                   <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="All Campuses" />
+                  <SelectValue placeholder="All Universities" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Everywhere</SelectItem>
-                  {campuses.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  {universities.map(u => (
+                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

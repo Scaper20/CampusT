@@ -141,7 +141,7 @@ export function MobileNav({ user }: MobileNavProps) {
 
         <div className="p-6 border-t bg-muted/20">
             <p className="text-[10px] text-center text-muted-foreground font-medium uppercase tracking-widest">
-                Caleb University
+                University
             </p>
         </div>
       </SheetContent>

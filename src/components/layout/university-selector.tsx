@@ -10,20 +10,20 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { getCampuses } from '@/app/actions/campuses'
+import { getUniversities } from '@/app/actions/universities'
 
-export function CampusSelector() {
-  const [campuses, setCampuses] = useState<any[]>([])
-  const [selectedCampus, setSelectedCampus] = useState<any>(null)
+export function UniversitySelector() {
+  const [universities, setUniversities] = useState<any[]>([])
+  const [selectedUniversity, setSelectedUniversity] = useState<any>(null)
 
   useEffect(() => {
-    async function fetchCampuses() {
-      const data = await getCampuses()
-      setCampuses(data)
+    async function fetchUniversities() {
+      const data = await getUniversities()
+      setUniversities(data)
       // For demo purposes, pick the first one or a default
-      if (data.length > 0) setSelectedCampus(data[0])
+      if (data.length > 0) setSelectedUniversity(data[0])
     }
-    fetchCampuses()
+    fetchUniversities()
   }, [])
 
   return (
@@ -36,20 +36,20 @@ export function CampusSelector() {
         >
           <MapPin className="h-4 w-4 text-primary" />
           <span className="text-xs font-semibold whitespace-nowrap">
-            {selectedCampus?.name || 'Select Campus'}
+            {selectedUniversity?.name || 'Select University'}
           </span>
           <ChevronDown className="h-3 w-3 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-[200px] rounded-xl shadow-card">
-        {campuses.map((campus) => (
+        {universities.map((university) => (
           <DropdownMenuItem
-            key={campus.id}
-            onClick={() => setSelectedCampus(campus)}
+            key={university.id}
+            onClick={() => setSelectedUniversity(university)}
             className="flex items-center justify-between py-2 cursor-pointer"
           >
-            <span className="text-sm font-medium">{campus.name}</span>
-            {selectedCampus?.id === campus.id && <Check className="h-4 w-4 text-primary" />}
+            <span className="text-sm font-medium">{university.name}</span>
+            {selectedUniversity?.id === university.id && <Check className="h-4 w-4 text-primary" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

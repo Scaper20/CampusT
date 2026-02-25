@@ -122,7 +122,7 @@ export default async function ProductPage({
                     </div>
                     <div className="flex items-center gap-3 px-2 text-muted-foreground">
                       <MapPin className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-semibold">Caleb University • {product.campus.name}</span>
+                      <span className="text-sm font-semibold">University • {product.university.name}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -135,12 +135,12 @@ export default async function ProductPage({
                     <Avatar className="h-12 w-12 md:h-14 md:w-14 border-2 border-white shadow-sm">
                       <AvatarImage src={product.seller.avatar_url} />
                       <AvatarFallback className="bg-primary text-primary-foreground font-bold">
-                        {product.seller.full_name[0]}
+                        {(product.seller.business_name || product.seller.full_name)[0]}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-0.5">Verified Student Seller</p>
-                      <p className="text-base md:text-lg font-bold text-foreground leading-tight truncate">{product.seller.full_name}</p>
+                      <p className="text-base md:text-lg font-bold text-foreground leading-tight truncate">{product.seller.business_name || product.seller.full_name}</p>
                       <div className="flex flex-wrap items-center gap-1 mt-1">
                         <div className="flex items-center gap-0.5">
                             <Star className="h-3 w-3 fill-amber-400 text-amber-400" />

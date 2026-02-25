@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Navbar } from '@/components/layout/navbar'
 import { ProfileForm } from '@/components/dashboard/profile-form'
-import { getCampuses } from '@/app/actions/campuses'
+import { getUniversities } from '@/app/actions/universities'
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
@@ -17,7 +17,7 @@ export default async function ProfilePage() {
     .eq('id', user.id)
     .single()
 
-  const campuses = await getCampuses()
+  const universities = await getUniversities()
 
   return (
     <div className="min-h-screen bg-background">
@@ -35,7 +35,7 @@ export default async function ProfilePage() {
               <CardDescription>Update your name and profile picture visible to other students.</CardDescription>
             </CardHeader>
             <CardContent>
-              <ProfileForm user={profile} campuses={campuses} />
+              <ProfileForm user={profile} universities={universities} />
             </CardContent>
           </Card>
         </div>

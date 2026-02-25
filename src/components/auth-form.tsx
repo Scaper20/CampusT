@@ -13,22 +13,29 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { loginSchema, signupSchema } from '@/lib/validations/auth'
 import { login, signup } from '@/app/actions/auth'
-import { getCampuses } from '@/app/actions/campuses'
+import { getUniversities } from '@/app/actions/universities'
+
+import { verifyOTP } from '@/app/actions/auth'
 
 export function AuthForm() {
   const searchParams = useSearchParams()
   const defaultTab = searchParams.get('tab') === 'signup' ? 'signup' : 'login'
   
   const [loading, setLoading] = useState(false)
-  const [campuses, setCampuses] = useState<unknown[]>([])
+  const [universities, setUniversities] = useState<unknown[]>([])
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>(defaultTab)
+  
+  // OTP Verification State
+  const [needsVerification, setNeedsVerification] = useState(false)
+  const [pendingEmail, setPendingEmail] = useState('')
+  const [otpCode, setOtpCode] = useState('')
 
   useEffect(() => {
-    async function fetchCampuses() {
-      const data = await getCampuses()
-      setCampuses(data)
+    async function fetchUniversities() {
+      const data = await getUniversities()
+      setUniversities(data)
     }
-    fetchCampuses()
+    fetchUniversities()
   }, [])
 
   const loginForm = useForm({
@@ -45,7 +52,7 @@ export function AuthForm() {
       full_name: '',
       email: '',
       password: '',
-      campus_id: '',
+      university_id: '',
     },
   })
 
@@ -68,7 +75,7 @@ export function AuthForm() {
     formData.append('full_name', data.full_name)
     formData.append('email', data.email)
     formData.append('password', data.password)
-    formData.append('campus_id', data.campus_id)
+    formData.append('university_id', data.university_id)
 
     const result = await signup(formData)
     setLoading(false)
@@ -76,7 +83,64 @@ export function AuthForm() {
       toast.error(result.error)
     } else if (result?.success) {
       toast.success(result.success)
+      setPendingEmail(result.email)
+      setNeedsVerification(true)
     }
+  }
+
+  async function handleVerify(e: React.FormEvent) {
+    e.preventDefault()
+    if (otpCode.length !== 6) {
+      toast.error("Please enter a valid 6-digit code")
+      return
+    }
+    
+    setLoading(true)
+    const result = await verifyOTP(pendingEmail, otpCode)
+    setLoading(false)
+    
+    if (result?.error) {
+      toast.error(result.error)
+    }
+  }
+
+  if (needsVerification) {
+    return (
+      <Card className="w-[400px]">
+        <CardHeader>
+          <CardTitle>Verify Your Email</CardTitle>
+          <CardDescription>We sent a 6-digit code to {pendingEmail}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleVerify} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="code">Verification Code</Label>
+              <Input 
+                id="code" 
+                type="text" 
+                maxLength={6}
+                placeholder="000000" 
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value)}
+                className="text-center text-2xl tracking-widest font-mono h-14"
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full h-12" disabled={loading || otpCode.length !== 6}>
+              {loading ? 'Verifying...' : 'Complete Registration'}
+            </Button>
+            <Button 
+              type="button" 
+              variant="ghost" 
+              className="w-full text-xs" 
+              onClick={() => setNeedsVerification(false)}
+            >
+              Go back
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -125,7 +189,7 @@ export function AuthForm() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-email">University Email</Label>
-                <Input id="signup-email" type="email" placeholder="name@calebuniversity.edu.ng" {...signupForm.register('email')} />
+                <Input id="signup-email" type="email" placeholder="name@university.edu.ng" {...signupForm.register('email')} />
                 {signupForm.formState.errors.email && (
                   <p className="text-xs text-red-500">{signupForm.formState.errors.email.message as string}</p>
                 )}
@@ -138,19 +202,19 @@ export function AuthForm() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="campus">Campus</Label>
+                <Label htmlFor="university">University</Label>
                 <select 
-                  id="campus" 
+                  id="university" 
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  {...signupForm.register('campus_id')}
+                  {...signupForm.register('university_id')}
                 >
-                  <option value="">Select your campus</option>
-                  {campuses.map((c: any) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
+                  <option value="">Select your university</option>
+                  {universities.map((u: any) => (
+                    <option key={u.id} value={u.id}>{u.name}</option>
                   ))}
                 </select>
-                {signupForm.formState.errors.campus_id && (
-                  <p className="text-xs text-red-500">{signupForm.formState.errors.campus_id.message as string}</p>
+                {signupForm.formState.errors.university_id && (
+                  <p className="text-xs text-red-500">{signupForm.formState.errors.university_id.message as string}</p>
                 )}
               </div>
 

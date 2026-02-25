@@ -25,7 +25,7 @@ import Image from 'next/image'
 
 interface ListingFormProps {
   initialData?: any
-  campuses: any[]
+  campuses: any[] // We'll rename prop internally later, for now just matching interface
 }
 
 const CATEGORIES = [
@@ -45,14 +45,14 @@ export function ListingForm({ initialData, campuses }: ListingFormProps) {
       description: initialData.description,
       price: initialData.price,
       category: initialData.category,
-      campus_id: initialData.campus_id,
+      university_id: initialData.university_id || initialData.campus_id, // handle old data
       images: initialData.images,
     } : {
       title: '',
       description: '',
       price: 0,
       category: '',
-      campus_id: '',
+      university_id: '',
       images: [],
     },
   })
@@ -149,10 +149,10 @@ export function ListingForm({ initialData, campuses }: ListingFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="campus">Campus</Label>
-          <Select onValueChange={(v) => form.setValue('campus_id', v)} defaultValue={form.getValues('campus_id')}>
+          <Label htmlFor="university">University</Label>
+          <Select onValueChange={(v) => form.setValue('university_id', v)} defaultValue={form.getValues('university_id')}>
             <SelectTrigger>
-              <SelectValue placeholder="Select campus" />
+              <SelectValue placeholder="Select university" />
             </SelectTrigger>
             <SelectContent>
               {campuses.map(c => (
@@ -160,7 +160,7 @@ export function ListingForm({ initialData, campuses }: ListingFormProps) {
               ))}
             </SelectContent>
           </Select>
-          {form.formState.errors.campus_id && <p className="text-xs text-red-500">{form.formState.errors.campus_id.message}</p>}
+          {form.formState.errors.university_id && <p className="text-xs text-red-500">{form.formState.errors.university_id.message}</p>}
         </div>
 
         <div className="space-y-4">

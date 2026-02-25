@@ -8,7 +8,7 @@ export async function getProduct(id: string) {
     .from('products')
     .select(`
       *,
-      campus:campuses(name),
+      university:universities(name),
       seller:profiles(full_name, avatar_url, marketplace_role)
     `)
     .eq('id', id)

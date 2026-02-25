@@ -19,7 +19,7 @@ export interface CartItem {
   image: string
   quantity: number
   seller_id: string
-  campus_name: string
+  university_name: string
 }
 
 export function useCart() {
@@ -63,7 +63,7 @@ export function useCart() {
     return true
   }, [supabase.auth, router])
 
-  const addToCart = useCallback(async (item: Omit<CartItem, 'quantity' | 'campus_name' | 'seller_id' | 'image' | 'title' | 'price' | 'id'> & { id: string }) => {
+  const addToCart = useCallback(async (item: Omit<CartItem, 'quantity' | 'university_name' | 'seller_id' | 'image' | 'title' | 'price' | 'id'> & { id: string }) => {
     if (!(await checkAuth())) return
 
     startTransition(async () => {

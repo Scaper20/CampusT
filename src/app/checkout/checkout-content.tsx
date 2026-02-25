@@ -117,7 +117,7 @@ export function CheckoutContent() {
                       <SelectContent className="rounded-2xl">
                         <SelectGroup>
                           <SelectLabel>Common Pickup Spots</SelectLabel>
-                          <SelectItem value="main-gate">Caleb Main Gate</SelectItem>
+                          <SelectItem value="main-gate">Main Gate</SelectItem>
                           <SelectItem value="chapel">The Chapel Frontage</SelectItem>
                           <SelectItem value="cafeteria">Main Cafeteria</SelectItem>
                           <SelectItem value="sports">Sports Center</SelectItem>
@@ -177,7 +177,7 @@ export function CheckoutContent() {
                       </div>
                       <div className="flex-1 min-w-0 py-1">
                         <h4 className="font-bold text-lg leading-tight line-clamp-1">{item.title}</h4>
-                        <p className="text-xs text-muted-foreground mt-0.5">{item.campus_name} • Student Seller</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{item.university_name} • Student Seller</p>
                         <div className="flex items-center justify-between mt-2">
                           <p className="font-black text-primary italic">₦{item.price.toLocaleString()}</p>
                           <p className="text-xs font-bold bg-muted px-2 py-1 rounded-full">Qty: {item.quantity}</p>

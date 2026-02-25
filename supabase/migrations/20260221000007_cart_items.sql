@@ -1,6 +1,6 @@
 -- CART ITEMS TABLE
 create table if not exists public.cart_items (
-    id uuid default uuid_generate_v4() primary key,
+    id uuid default gen_random_uuid() primary key,
     user_id uuid references public.profiles(id) on delete cascade not null,
     product_id uuid references public.products(id) on delete cascade not null,
     quantity integer default 1 check (quantity > 0),

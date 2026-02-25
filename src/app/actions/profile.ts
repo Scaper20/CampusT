@@ -5,8 +5,9 @@ import { revalidatePath } from 'next/cache'
 
 export async function updateProfile(formData: {
   full_name: string
+  business_name?: string | null
   avatar_url?: string
-  campus_id: string
+  university_id: string
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

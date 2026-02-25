@@ -5,7 +5,7 @@ export const productSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters").max(1000),
   price: z.coerce.number().min(0, "Price must be a positive number"),
   category: z.string().min(1, "Please select a category"),
-  campus_id: z.string().uuid("Please select a campus"),
+  university_id: z.string().uuid("Please select a university"),
   images: z.array(z.string()).min(1, "At least one image is required").max(4),
 });
 

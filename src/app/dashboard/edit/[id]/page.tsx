@@ -1,6 +1,6 @@
 import { Navbar } from '@/components/layout/navbar'
 import { ListingForm } from '@/components/dashboard/listing-form'
-import { getCampuses } from '@/app/actions/campuses'
+import { getUniversities } from '@/app/actions/universities'
 import { getProduct } from '@/app/actions/product-detail'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
@@ -22,7 +22,7 @@ export default async function EditListingPage({
     redirect('/dashboard')
   }
 
-  const campuses = await getCampuses()
+  const campuses = await getUniversities()
 
   return (
     <div className="min-h-screen bg-background">

@@ -73,7 +73,7 @@ export function CartDrawer() {
                         <h4 className="font-bold text-sm line-clamp-1">{item.title}</h4>
                         <p className="text-xs font-bold text-primary">₦{item.price.toLocaleString()}</p>
                         <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-                           {item.campus_name}
+                           {item.university_name}
                         </p>
                       </div>
                       <div className="flex items-center justify-between mt-2">

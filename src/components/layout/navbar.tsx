@@ -6,7 +6,7 @@ import { Search, ShoppingBag, MessageSquare } from 'lucide-react'
 import { UserNav } from './user-nav'
 import { AnnouncementBar } from './announcement-bar'
 import { NavbarContainer } from './navbar-container'
-import { CampusSelector } from './campus-selector'
+import { UniversitySelector } from './university-selector'
 import { CartDrawer } from '../cart/cart-drawer'
 import { MobileNav } from './mobile-nav'
 
@@ -64,7 +64,7 @@ export async function Navbar() {
 
         <div className="flex items-center gap-1.5 sm:gap-3">
           <div className="hidden xl:flex items-center pr-3 border-r mr-1">
-             <CampusSelector />
+             <UniversitySelector />
           </div>
 
           <div className="flex items-center gap-0.5 sm:gap-1.5">

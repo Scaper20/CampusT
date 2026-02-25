@@ -20,8 +20,8 @@ interface ProductCardProps {
     price: number
     category: string
     images: string[]
-    campus: { name: string }
-    seller: { full_name: string; avatar_url?: string }
+    university: { name: string }
+    seller: { full_name: string; business_name?: string | null; avatar_url?: string }
     rating?: number
   }
 }
@@ -31,6 +31,8 @@ export function ProductCard({ product }: ProductCardProps) {
   const [isAdded, setIsAdded] = useState(false)
   const { addToCart } = useCart()
   const mainImage = product.images?.[0] || '/placeholder-product.jpg'
+
+  const displayName = product.seller.business_name || product.seller.full_name
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -96,17 +98,17 @@ export function ProductCard({ product }: ProductCardProps) {
               <div className="flex items-center gap-2">
                 <Avatar className="h-5 w-5 border shadow-sm">
                   <AvatarImage src={product.seller.avatar_url} />
-                  <AvatarFallback className="text-[10px]">{product.seller.full_name[0]}</AvatarFallback>
+                  <AvatarFallback className="text-[10px]">{displayName[0]}</AvatarFallback>
                 </Avatar>
                 <span className="text-xs font-medium text-muted-foreground truncate">
-                  {product.seller.full_name}
+                  {displayName}
                 </span>
               </div>
             </div>
 
             <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary/60">
               <MapPin className="h-3 w-3" />
-              {product.campus.name}
+              {product.university.name}
             </div>
 
             <div className="flex items-center justify-between mt-auto pt-2">

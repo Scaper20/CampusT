@@ -6,9 +6,11 @@ import { Toaster } from '@/components/ui/sonner'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'CampusTrade | Caleb University Student Marketplace',
-  description: 'A secure marketplace for verified students at Caleb University to buy and sell products.',
+  title: 'CampusTrade | University Student Marketplace',
+  description: 'A secure marketplace for verified students to buy and sell products.',
 }
+
+import { IdleTimer } from '@/components/layout/idle-timer'
 
 export default function RootLayout({
   children,
@@ -18,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        <IdleTimer />
         <main>{children}</main>
         <Toaster position="top-center" />
       </body>

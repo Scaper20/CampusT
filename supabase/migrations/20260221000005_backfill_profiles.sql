@@ -1,10 +1,10 @@
 -- Backfill missing profiles for existing users
 -- This fixes the "violates foreign key constraint" error for users who signed up before the trigger was applied.
-INSERT INTO public.profiles (id, full_name, campus_id)
+INSERT INTO public.profiles (id, full_name, university_id)
 SELECT 
   id, 
   raw_user_meta_data->>'full_name',
-  (raw_user_meta_data->>'campus_id')::uuid
+  (raw_user_meta_data->>'university_id')::uuid
 FROM auth.users
 WHERE id NOT IN (SELECT id FROM public.profiles)
 ON CONFLICT (id) DO NOTHING;

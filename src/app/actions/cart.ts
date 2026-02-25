@@ -20,7 +20,7 @@ export async function getCartItems() {
         price,
         images,
         seller_id,
-        campus:campuses (
+        university:universities (
           name
         )
       )
@@ -40,7 +40,7 @@ export async function getCartItems() {
     image: item.product.images[0],
     quantity: item.quantity,
     seller_id: item.product.seller_id,
-    campus_name: item.product.campus?.name || 'Unknown'
+    university_name: item.product.university?.name || 'Unknown'
   }))
 }
 

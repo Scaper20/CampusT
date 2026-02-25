@@ -25,8 +25,8 @@ export async function getProducts({
     .from('products')
     .select(`
       *,
-      campus:campuses(name),
-      seller:profiles(full_name)
+      university:universities(name),
+      seller:profiles(full_name, business_name, avatar_url)
     `, { count: 'exact' })
     .eq('status', 'active')
 
@@ -39,7 +39,7 @@ export async function getProducts({
   }
 
   if (campusId && campusId !== 'all') {
-    dbQuery = dbQuery.eq('campus_id', campusId)
+    dbQuery = dbQuery.eq('university_id', campusId)
   }
 
   // Sorting
