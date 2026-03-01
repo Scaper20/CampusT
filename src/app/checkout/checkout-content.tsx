@@ -6,9 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useCart } from '@/lib/hooks/use-cart'
-import { ShieldCheck, MapPin, Calendar, Clock, ArrowLeft, CheckCircle2, ShoppingBag } from 'lucide-react'
+import { ShieldCheck, MapPin, Calendar, Clock, ArrowLeft, CheckCircle2, ShoppingBag, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { placeOrderAction } from '@/app/actions/orders'
 import { 
   Select, 
   SelectContent, 
@@ -28,19 +31,31 @@ export function CheckoutContent() {
   const [meetupDate, setMeetupDate] = useState('')
   const [timeWindow, setTimeWindow] = useState('afternoon')
 
-  const handlePlaceOrder = () => {
-    // In a real app, we'd send these details to the server
-    console.log('Order Details:', {
-      items,
-      totalPrice,
-      meetup: {
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false)
+
+  const handlePlaceOrder = async () => {
+    try {
+      setIsPlacingOrder(true)
+      const res = await placeOrderAction(items, totalPrice, {
         location: pickupLocation,
         date: meetupDate,
         time: timeWindow
+      })
+
+      if (res.error) {
+        toast.error(res.error)
+        return
       }
-    })
-    setStep('success')
-    clearCart()
+
+      setStep('success')
+      clearCart()
+      toast.success('Order placed successfully! Sellers have been notified.')
+    } catch (err) {
+       console.error(err)
+       toast.error('An unexpected error occurred.')
+    } finally {
+      setIsPlacingOrder(false)
+    }
   }
 
   const isMeetupReady = !!meetupDate
@@ -226,11 +241,15 @@ export function CheckoutContent() {
                   </div>
 
                   <Button 
-                    className="w-full h-16 rounded-full text-lg font-black shadow-button hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
+                    className="w-full h-16 rounded-full text-lg font-black shadow-button hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handlePlaceOrder}
-                    disabled={!isMeetupReady}
+                    disabled={!isMeetupReady || isPlacingOrder}
                   >
-                    {isMeetupReady ? 'Request Meetup & Buy' : 'Set Meetup Date to Buy'}
+                    {isPlacingOrder ? (
+                      <span className="flex items-center gap-2"><Loader2 className="h-5 w-5 animate-spin" /> Placing Order...</span>
+                    ) : (
+                      isMeetupReady ? 'Request Meetup & Buy' : 'Set Meetup Date to Buy'
+                    )}
                   </Button>
 
                   <p className="text-[10px] text-center text-muted-foreground px-4 leading-normal font-medium">

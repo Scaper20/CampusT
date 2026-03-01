@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { logout } from "@/app/actions/auth"
 import Link from "next/link"
 import { User, LayoutDashboard, MessageSquare, LogOut, Shield } from "lucide-react"
+import { useNotifications } from "../notifications/notification-provider"
 
 interface UserNavProps {
   user: {

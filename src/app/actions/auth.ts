@@ -56,16 +56,34 @@ export async function signup(formData: FormData) {
   // Profile creation is now handled by the database trigger `on_auth_user_created`
   // mapping data from raw_user_meta_data.
 
-  return { success: 'OTP sent', email }
+  revalidatePath('/', 'layout')
+  redirect('/browse')
 }
 
-export async function verifyOTP(email: string, token: string) {
+export async function forgotPassword(formData: FormData) {
   const supabase = await createClient()
+  const email = formData.get('email') as string
 
-  const { error } = await supabase.auth.verifyOtp({
-    email,
-    token,
-    type: 'signup'
+  // Note: Assumes NEXT_PUBLIC_SITE_URL is set, otherwise fallback to request origin
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: 'Password reset link sent to your email' }
+}
+
+export async function updatePassword(formData: FormData) {
+  const supabase = await createClient()
+  const password = formData.get('password') as string
+
+  const { error } = await supabase.auth.updateUser({
+    password: password
   })
 
   if (error) {
