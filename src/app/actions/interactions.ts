@@ -15,10 +15,9 @@ export async function startConversation(productId: string, sellerId: string) {
   const { data: existing } = await supabase
     .from('conversations')
     .select('id')
-    .eq('buyer_id', user.id)
-    .eq('seller_id', sellerId)
-    .eq('product_id', productId)
-    .single()
+    .or(`and(buyer_id.eq.${user.id},seller_id.eq.${sellerId}),and(buyer_id.eq.${sellerId},seller_id.eq.${user.id})`)
+    .limit(1)
+    .maybeSingle()
 
   if (existing) {
     redirect(`/messages?id=${existing.id}`)

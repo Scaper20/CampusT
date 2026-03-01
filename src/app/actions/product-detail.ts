@@ -9,7 +9,7 @@ export async function getProduct(id: string) {
     .select(`
       *,
       university:universities(name),
-      seller:profiles(full_name, avatar_url, marketplace_role)
+      seller:profiles(full_name, avatar_url, business_name)
     `)
     .eq('id', id)
     .single()

@@ -99,58 +99,54 @@ export async function placeOrderAction(items: CartItem[], totalPrice: number, me
     const itemTitles = sellerItems.map(i => i.title).join(', ')
 
     // 4a. Create Notification for Seller
-    await supabase.from('notifications').insert({
+    const { error: notifError } = await supabase.from('notifications').insert({
       user_id: sellerId,
       type: 'order_placed',
       title: 'New Order Received! 🛍️',
       message: `${buyerName} placed an order for ${itemTitles}. They want to meet at ${meetup.location} on ${meetup.date} (${meetup.time}).`,
       link: `/messages` // Linking to messages where they can chat
     })
+    
+    if (notifError) console.error('Notification Insert Error:', notifError)
 
     // 4b. Auto-open Conversation
-    // For each unique product from this seller in the order, we ensure a conversation exists
-    // (Our conversations table has a unique constraint on buyer_id, seller_id, product_id)
-    for (const item of sellerItems) {
-      // Try to insert a new conversation (will fail gracefully if we don't catch, but better to check or ON CONFLICT DO NOTHING)
-      // Since supabase standard insert might throw, we can select first
-      const { data: existingConv } = await supabase
+    // Check if ANY conversation exists between buyer and seller to enforce 1 chat per user pair
+    const { data: existingConv } = await supabase
+      .from('conversations')
+      .select('id')
+      .or(`and(buyer_id.eq.${user.id},seller_id.eq.${sellerId}),and(buyer_id.eq.${sellerId},seller_id.eq.${user.id})`)
+      .limit(1)
+      .maybeSingle()
+    
+    let conversationId = existingConv?.id
+
+    if (!conversationId) {
+      const { data: newConv } = await supabase
         .from('conversations')
+        .insert({
+          buyer_id: user.id,
+          seller_id: sellerId,
+          product_id: sellerItems[0].id // use first item as anchor
+        })
         .select('id')
-        .eq('buyer_id', user.id)
-        .eq('seller_id', sellerId)
-        .eq('product_id', item.id)
         .single()
       
-      let conversationId = existingConv?.id
+      if (newConv) conversationId = newConv.id
+    }
 
-      if (!conversationId) {
-        const { data: newConv } = await supabase
-          .from('conversations')
-          .insert({
-            buyer_id: user.id,
-            seller_id: sellerId,
-            product_id: item.id
-          })
-          .select('id')
-          .single()
-        
-        if (newConv) conversationId = newConv.id
-      }
+    if (conversationId) {
+      const { error: msgErr } = await supabase.from('messages').insert({
+        conversation_id: conversationId,
+        sender_id: user.id,
+        content: `Hi! I just placed an order for ${itemTitles}. I requested to meet at ${meetup.location} on ${meetup.date} during the ${meetup.time}. Let me know if that works for you!`
+      })
+      if (msgErr) console.error('Message Insert Error:', msgErr)
 
-      // Insert the initial automated message
-      if (conversationId) {
-        await supabase.from('messages').insert({
-          conversation_id: conversationId,
-          sender_id: user.id,
-          content: `Hi! I just placed an order for ${item.title}. I requested to meet at ${meetup.location} on ${meetup.date} during the ${meetup.time}. Let me know if that works for you!`
-        })
-
-        // Update conversation last_message_at
-        await supabase
-          .from('conversations')
-          .update({ last_message_at: new Date().toISOString() })
-          .eq('id', conversationId)
-      }
+      const { error: convUpdateErr } = await supabase
+        .from('conversations')
+        .update({ last_message_at: new Date().toISOString() })
+        .eq('id', conversationId)
+      if (convUpdateErr) console.error('Conv Update Error:', convUpdateErr)
     }
 
     // 4c. Send Email Notification (if Resend is configured and seller has email in auth/profile)
