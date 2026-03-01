@@ -10,12 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { loginSchema, signupSchema } from '@/lib/validations/auth'
 import { login, signup } from '@/app/actions/auth'
 import { getUniversities } from '@/app/actions/universities'
-
-import { verifyOTP } from '@/app/actions/auth'
+import Link from 'next/link'
 
 export function AuthForm() {
   const searchParams = useSearchParams()
@@ -24,11 +24,6 @@ export function AuthForm() {
   const [loading, setLoading] = useState(false)
   const [universities, setUniversities] = useState<unknown[]>([])
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>(defaultTab)
-  
-  // OTP Verification State
-  const [needsVerification, setNeedsVerification] = useState(false)
-  const [pendingEmail, setPendingEmail] = useState('')
-  const [otpCode, setOtpCode] = useState('')
 
   useEffect(() => {
     async function fetchUniversities() {
@@ -52,6 +47,7 @@ export function AuthForm() {
       full_name: '',
       email: '',
       password: '',
+      confirm_password: '',
       university_id: '',
     },
   })
@@ -81,66 +77,7 @@ export function AuthForm() {
     setLoading(false)
     if (result?.error) {
       toast.error(result.error)
-    } else if (result?.success) {
-      toast.success(result.success)
-      setPendingEmail(result.email)
-      setNeedsVerification(true)
     }
-  }
-
-  async function handleVerify(e: React.FormEvent) {
-    e.preventDefault()
-    if (otpCode.length !== 6) {
-      toast.error("Please enter a valid 6-digit code")
-      return
-    }
-    
-    setLoading(true)
-    const result = await verifyOTP(pendingEmail, otpCode)
-    setLoading(false)
-    
-    if (result?.error) {
-      toast.error(result.error)
-    }
-  }
-
-  if (needsVerification) {
-    return (
-      <Card className="w-[400px]">
-        <CardHeader>
-          <CardTitle>Verify Your Email</CardTitle>
-          <CardDescription>We sent a 6-digit code to {pendingEmail}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleVerify} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="code">Verification Code</Label>
-              <Input 
-                id="code" 
-                type="text" 
-                maxLength={6}
-                placeholder="000000" 
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value)}
-                className="text-center text-2xl tracking-widest font-mono h-14"
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full h-12" disabled={loading || otpCode.length !== 6}>
-              {loading ? 'Verifying...' : 'Complete Registration'}
-            </Button>
-            <Button 
-              type="button" 
-              variant="ghost" 
-              className="w-full text-xs" 
-              onClick={() => setNeedsVerification(false)}
-            >
-              Go back
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    )
   }
 
   return (
@@ -167,10 +104,18 @@ export function AuthForm() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" {...loginForm.register('password')} />
+                <PasswordInput id="password" {...loginForm.register('password')} />
                 {loginForm.formState.errors.password && (
                   <p className="text-xs text-red-500">{loginForm.formState.errors.password.message as string}</p>
                 )}
+              </div>
+              <div className="flex items-center justify-end">
+                <Link 
+                  href="/forgot-password" 
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Logging in...' : 'Login'}
@@ -196,9 +141,16 @@ export function AuthForm() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-password">Password</Label>
-                <Input id="signup-password" type="password" {...signupForm.register('password')} />
+                <PasswordInput id="signup-password" {...signupForm.register('password')} />
                 {signupForm.formState.errors.password && (
                   <p className="text-xs text-red-500">{signupForm.formState.errors.password.message as string}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+                <PasswordInput id="signup-confirm-password" {...signupForm.register('confirm_password')} />
+                {signupForm.formState.errors.confirm_password && (
+                  <p className="text-xs text-red-500">{signupForm.formState.errors.confirm_password.message as string}</p>
                 )}
               </div>
               <div className="space-y-2">

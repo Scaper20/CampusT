@@ -44,6 +44,10 @@ export default async function DashboardPage() {
   const soldCount = products?.filter(p => p.status === 'sold').length || 0
   const totalViews = products?.reduce((acc, p) => acc + (p.views_count || 0), 0) || 0
   const totalEarnings = products?.filter(p => p.status === 'sold').reduce((acc, p) => acc + p.price, 0) || 0
+  
+  // Dynamic Insight Calculations
+  const activeInventoryValue = products?.filter(p => p.status === 'active').reduce((acc, p) => acc + p.price, 0) || 0
+  const engagementRate = activeCount > 0 ? Math.round(totalViews / activeCount) : 0
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -208,8 +212,7 @@ export default async function DashboardPage() {
               )}
             </div>
 
-            {/* Right: Insights & Actions */}
-            <div className="lg:col-span-4 space-y-8">
+             <div className="lg:col-span-4 space-y-8">
                <Card className="border-none shadow-card rounded-[2.5rem] bg-card overflow-hidden">
                  <CardHeader className="p-8 pb-0">
                     <CardTitle className="text-xl font-black tracking-tight">Store Insights</CardTitle>
@@ -218,12 +221,12 @@ export default async function DashboardPage() {
                  <CardContent className="p-8 space-y-6">
                     <div className="space-y-4">
                        <div className="bg-primary/5 p-5 rounded-[1.5rem] border border-primary/10 space-y-1">
-                          <p className="text-xs font-black text-primary uppercase tracking-widest">Growth</p>
-                          <p className="text-lg font-bold">+12% more views this week</p>
+                          <p className="text-xs font-black text-primary uppercase tracking-widest">Active Value</p>
+                          <p className="text-lg font-bold">₦{activeInventoryValue.toLocaleString()}</p>
                        </div>
                        <div className="bg-accent/5 p-5 rounded-[1.5rem] border border-accent/10 space-y-1">
-                          <p className="text-xs font-black text-accent uppercase tracking-widest">Achievement</p>
-                          <p className="text-lg font-bold">Top Seller in &quot;Hall 2&quot;</p>
+                          <p className="text-xs font-black text-accent uppercase tracking-widest">Avg. Engagement</p>
+                          <p className="text-lg font-bold">{engagementRate} views per item</p>
                        </div>
                     </div>
 
@@ -243,19 +246,6 @@ export default async function DashboardPage() {
                     </div>
                  </CardContent>
                </Card>
-
-               <div className="bg-amber-500 rounded-[2.5rem] p-8 text-white space-y-4 shadow-card">
-                  <Zap className="h-10 w-10 fill-white" />
-                  <div className="space-y-1">
-                    <h3 className="text-xl font-black">Boost your sales</h3>
-                    <p className="text-white/80 text-sm font-medium leading-relaxed">
-                      Featured listings get 5x more views from fellow students on the homepage.
-                    </p>
-                  </div>
-                  <Button className="w-full bg-white text-amber-600 hover:bg-white/90 rounded-full h-12 font-bold shadow-lg">
-                    Upgrade to Featured
-                  </Button>
-               </div>
             </div>
           </div>
         </div>

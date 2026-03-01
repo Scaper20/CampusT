@@ -9,6 +9,7 @@ import { NavbarContainer } from './navbar-container'
 import { UniversitySelector } from './university-selector'
 import { CartDrawer } from '../cart/cart-drawer'
 import { MobileNav } from './mobile-nav'
+import { NavActions } from './nav-actions'
 
 export async function Navbar() {
   const supabase = await createClient()
@@ -67,15 +68,7 @@ export async function Navbar() {
              <UniversitySelector />
           </div>
 
-          <div className="flex items-center gap-0.5 sm:gap-1.5">
-            <Button variant="ghost" size="icon" className="rounded-full relative hover:bg-primary/5 hover:text-primary transition-colors h-10 w-10 sm:h-11 sm:w-11" asChild>
-              <Link href="/messages">
-                <MessageSquare className="h-5 w-5" />
-              </Link>
-            </Button>
-            
-            <CartDrawer />
-          </div>
+          <NavActions />
 
           {userProfile ? (
             <div className="hidden sm:block ml-2 pl-4 border-l">

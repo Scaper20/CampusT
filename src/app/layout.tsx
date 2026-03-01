@@ -11,6 +11,8 @@ export const metadata: Metadata = {
 }
 
 import { IdleTimer } from '@/components/layout/idle-timer'
+import { Footer } from '@/components/layout/footer'
+import { NotificationsProvider } from '@/components/notifications/notification-provider'
 
 export default function RootLayout({
   children,
@@ -20,9 +22,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <IdleTimer />
-        <main>{children}</main>
-        <Toaster position="top-center" />
+        <NotificationsProvider>
+          <IdleTimer />
+          <main className="flex-1 shrink-0 bg-background">{children}</main>
+          <Footer />
+          <Toaster position="top-center" />
+        </NotificationsProvider>
       </body>
     </html>
   )
